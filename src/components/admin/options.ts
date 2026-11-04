@@ -1,10 +1,8 @@
-import type { Category, TableStatus } from '@/types/demo';
+import type { Category, TableStatus } from '@/types/restaurant';
 
 export const tableStates: { value: TableStatus; label: string }[] = [
   { value: 'disponible', label: 'Disponible' },
-  { value: 'reservada', label: 'Reservada' },
-  { value: 'ocupada', label: 'Ocupada' },
-  { value: 'mantenimiento', label: 'Mantenimiento' },
+  { value: 'mantenimiento', label: 'Inactiva' },
 ];
 
 export const categories: { value: Category; label: string }[] = [
@@ -15,7 +13,14 @@ export const categories: { value: Category; label: string }[] = [
 ];
 
 export const tableTone = (status: TableStatus) =>
-  status === 'disponible' ? 'success' : status === 'mantenimiento' ? 'danger' : 'warning';
+  status === 'disponible' ? 'success' : 'neutral';
+
+export const weekDays = [
+  { value: 1, label: 'Lunes' }, { value: 2, label: 'Martes' },
+  { value: 3, label: 'Miércoles' }, { value: 4, label: 'Jueves' },
+  { value: 5, label: 'Viernes' }, { value: 6, label: 'Sábado' },
+  { value: 0, label: 'Domingo' },
+];
 
 export function isDateValue(value: string): boolean {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;

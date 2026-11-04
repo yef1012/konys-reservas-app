@@ -1,10 +1,10 @@
 import { router } from 'expo-router';
 import { AppText, Button, Card, EmptyState, Row, Screen } from '@/components/konys/ui';
-import type { Table, TableStatus } from '@/types/demo';
+import type { Table, TableStatus } from '@/types/restaurant';
 import { formatDate, isValidDate } from '@/utils/reservations';
 
 export const tableLabels: Record<TableStatus, string> = {
-  disponible: 'Disponible', reservada: 'Reservada', ocupada: 'Ocupada', mantenimiento: 'Mantenimiento',
+  disponible: 'Disponible', reservada: 'Reservada', ocupada: 'Ocupada', mantenimiento: 'Inactiva',
 };
 export const tableTones: Record<TableStatus, 'success' | 'warning' | 'danger' | 'neutral'> = {
   disponible: 'success', reservada: 'warning', ocupada: 'danger', mantenimiento: 'neutral',

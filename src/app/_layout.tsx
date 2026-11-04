@@ -4,7 +4,7 @@ import { StatusBar } from 'expo-status-bar';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors } from '@/constants/konys';
-import { DemoProvider } from '@/state/demo-store';
+import { RestaurantProvider } from '@/state/restaurant-store';
 
 const tabs: { label: string; icon: string; href: Href }[] = [
   { label: 'Inicio', icon: '⌂', href: '/' },
@@ -22,7 +22,7 @@ function AppShell() {
       <View style={styles.brand}><View style={styles.logo}><Text style={styles.logoText}>K</Text></View>
         <View><Text style={styles.brandName}>KONYS PIZZA</Text><Text style={styles.brandCaption}>RESERVA TU MOMENTO</Text></View>
       </View>
-      <View style={styles.demo}><Text style={styles.demoText}>DEMO LOCAL</Text></View>
+      <View style={styles.demo}><Text style={styles.demoText}>RESERVAS</Text></View>
     </View></View>
     <View style={styles.main}>
       <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.background } }} />
@@ -41,7 +41,7 @@ function AppShell() {
 }
 
 export default function RootLayout() {
-  return <DemoProvider><AppShell /></DemoProvider>;
+  return <RestaurantProvider><AppShell /></RestaurantProvider>;
 }
 
 const styles = StyleSheet.create({

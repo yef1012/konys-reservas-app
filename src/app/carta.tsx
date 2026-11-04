@@ -3,8 +3,8 @@ import { StyleSheet, View } from 'react-native';
 
 import { AppText, Badge, Card, Chip, EmptyState, Notice, Row, Screen, Section } from '@/components/konys/ui';
 import { colors } from '@/constants/konys';
-import { useDemo } from '@/state/demo-store';
-import type { Category } from '@/types/demo';
+import { useRestaurant } from '@/state/restaurant-store';
+import type { Category } from '@/types/restaurant';
 import { formatMoney } from '@/utils/reservations';
 
 const categories: { id: Category; label: string }[] = [
@@ -13,18 +13,18 @@ const categories: { id: Category; label: string }[] = [
 ];
 
 export default function MenuScreen() {
-  const { dishes } = useDemo();
+  const { dishes, loading, error } = useRestaurant();
   const [category, setCategory] = useState<Category | 'todas'>('todas');
   const visibleDishes = dishes.filter((dish) => dish.visible);
 
   return (
     <Screen title="Carta digital" subtitle="Sabores para compartir, del primer bocado al postre.">
-      <Notice>Productos y precios ilustrativos en pesos colombianos (COP). Carta de consulta.</Notice>
-      <Row>
+      <Notice>Precios en pesos colombianos (COP). Carta de consulta.</Notice>
+      {!loading && !error && <Row>
         <Chip label="Todo" selected={category === 'todas'} onPress={() => setCategory('todas')} />
         {categories.map((item) => <Chip key={item.id} label={item.label} selected={category === item.id} onPress={() => setCategory(item.id)} />)}
-      </Row>
-      {categories.filter((item) => category === 'todas' || category === item.id).map((item) => {
+      </Row>}
+      {!loading && !error && categories.filter((item) => category === 'todas' || category === item.id).map((item) => {
         const products = visibleDishes.filter((dish) => dish.category === item.id);
         return (
           <Section key={item.id} title={item.label} action={<Badge label={`${products.length} platos`} />}>

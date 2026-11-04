@@ -1,20 +1,21 @@
 import { useState } from 'react';
 
 import { isDateValue } from '@/components/admin/options';
+import { useAdminAction } from '@/components/admin/use-admin-action';
 import { AppText, Badge, Button, Card, Chip, EmptyState, Field, Notice, Row, Screen } from '@/components/konys/ui';
 import { colors } from '@/constants/konys';
-import { useDemo } from '@/state/demo-store';
-import type { Reservation } from '@/types/demo';
+import { useRestaurant } from '@/state/restaurant-store';
+import type { Reservation } from '@/types/restaurant';
 import { addDays, formatDate, todayISO } from '@/utils/reservations';
 
 export default function AdminReservationsScreen() {
-  const { reservations, tables, updateReservationStatus } = useDemo();
+  const { reservations, tables, updateReservationStatus, loading } = useRestaurant();
   const [dateFilter, setDateFilter] = useState('todas');
   const [customDate, setCustomDate] = useState(todayISO());
   const [tableFilter, setTableFilter] = useState('todas');
   const [statusFilter, setStatusFilter] = useState<Reservation['status'] | 'todas'>('todas');
   const [cancelId, setCancelId] = useState('');
-  const [message, setMessage] = useState('');
+  const action = useAdminAction();
   const date = dateFilter === 'hoy' ? todayISO() : dateFilter === 'mañana' ? addDays(todayISO(), 1) : dateFilter === 'fecha' ? customDate : '';
   const dateValid = !date || isDateValue(date);
   const filtered = reservations.filter((reservation) => dateValid && (!date || reservation.date === date) && (tableFilter === 'todas' || reservation.tableId === tableFilter) && (statusFilter === 'todas' || reservation.status === statusFilter)).sort((a, b) => `${a.date} ${a.time}`.localeCompare(`${b.date} ${b.time}`));
@@ -30,9 +31,11 @@ export default function AdminReservationsScreen() {
         <Row>{(['todas', 'confirmada', 'completada', 'cancelada'] as const).map((status) => <Chip key={status} label={{ todas: 'Todos', confirmada: 'Confirmadas', completada: 'Completadas', cancelada: 'Canceladas' }[status]} selected={statusFilter === status} onPress={() => setStatusFilter(status)} />)}</Row>
         <Button label="Limpiar filtros" variant="ghost" onPress={() => { setDateFilter('todas'); setTableFilter('todas'); setStatusFilter('todas'); }} />
       </Card>
-      {message ? <Notice tone="success">{message}</Notice> : null}
+      {action.message ? <Notice tone="success">{action.message}</Notice> : null}
+      {action.error ? <Notice tone="error">{action.error}</Notice> : null}
+      {action.pending ? <Notice>Actualizando reserva…</Notice> : null}
       <AppText variant="label">{filtered.length} reserva{filtered.length === 1 ? '' : 's'} encontrada{filtered.length === 1 ? '' : 's'}</AppText>
-      {!filtered.length ? <EmptyState title="Sin reservas para estos filtros" message="Prueba otra fecha, mesa o estado. Las reservas que crees desde Inicio aparecerán aquí." /> : null}
+      {!filtered.length && !loading ? <EmptyState title="Sin reservas para estos filtros" message="Prueba otra fecha, mesa o estado. Las reservas que crees desde Inicio aparecerán aquí." /> : null}
       {filtered.map((reservation) => {
         const table = tables.find((item) => item.id === reservation.tableId);
         return (
@@ -42,10 +45,10 @@ export default function AdminReservationsScreen() {
             <AppText>{reservation.name} · {reservation.people} persona{reservation.people === 1 ? '' : 's'}</AppText>
             <AppText variant="caption">{table?.zone} · Contacto: {reservation.contact || 'No indicado'}</AppText>
             <AppText variant="caption">Código: {reservation.id}</AppText>
-            {reservation.status === 'confirmada' && cancelId !== reservation.id ? <Row><Button label="Marcar completada" variant="secondary" onPress={() => { updateReservationStatus(reservation.id, 'completada'); setMessage('Reserva marcada como completada.'); }} /><Button label="Cancelar reserva" variant="ghost" onPress={() => setCancelId(reservation.id)} /></Row> : null}
+            {reservation.status === 'confirmada' && cancelId !== reservation.id ? <Row><Button label="Marcar completada" variant="secondary" disabled={action.pending} onPress={() => { void action.run(() => updateReservationStatus(reservation.id, 'completada'), 'Reserva marcada como completada.'); }} /><Button label="Cancelar reserva" variant="ghost" disabled={action.pending} onPress={() => setCancelId(reservation.id)} /></Row> : null}
             {cancelId === reservation.id && reservation.status === 'confirmada' ? <>
               <Notice>¿Cancelar la reserva de {reservation.name}? Su horario quedará libre.</Notice>
-              <Row><Button label="Sí, cancelar reserva" variant="danger" onPress={() => { updateReservationStatus(reservation.id, 'cancelada'); setCancelId(''); setMessage('Reserva cancelada. El horario vuelve a estar disponible.'); }} /><Button label="Conservar reserva" variant="secondary" onPress={() => setCancelId('')} /></Row>
+              <Row><Button label={action.pending ? 'Cancelando…' : 'Sí, cancelar reserva'} variant="danger" disabled={action.pending} onPress={() => { void action.run(() => updateReservationStatus(reservation.id, 'cancelada'), 'Reserva cancelada.', () => setCancelId('')); }} /><Button label="Conservar reserva" variant="secondary" disabled={action.pending} onPress={() => setCancelId('')} /></Row>
             </> : null}
           </Card>
         );

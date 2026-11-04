@@ -2,19 +2,29 @@ import { router, type Href } from 'expo-router';
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
+import { useAdminAction } from '@/components/admin/use-admin-action';
 import { AppText, Badge, Button, Card, Field, Notice, Row, Screen } from '@/components/konys/ui';
 import { colors } from '@/constants/konys';
-import { useDemo } from '@/state/demo-store';
+import { useRestaurant } from '@/state/restaurant-store';
 import { todayISO } from '@/utils/reservations';
 
 export default function AdminScreen() {
-  const { isAdmin, login, logout, tables, reservations, dishes, shifts } = useDemo();
-  const [pin, setPin] = useState('');
-  const [error, setError] = useState('');
+  const { isAdmin, authError, session, login, logout, tables, reservations, dishes, shifts } = useRestaurant();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const action = useAdminAction();
   const enter = () => {
-    if (!login(pin)) setError('PIN incorrecto. Usa 1234 para esta demostración.');
-    else { setError(''); setPin(''); }
+    if (!email.trim() || !password) { action.setError('Escribe tu correo y contraseña.'); return; }
+    void action.run(() => login(email.trim(), password), '', () => setPassword(''));
   };
+
+  if (session && !isAdmin) return (
+    <Screen title="Acceso administrador" subtitle="Tu sesión no tiene acceso a este panel.">
+      <Notice tone="error">{authError || 'Esta cuenta no tiene permisos de administrador. Contacta al responsable del restaurante.'}</Notice>
+      {action.error ? <Notice tone="error">{action.error}</Notice> : null}
+      <Button label={action.pending ? 'Cerrando sesión…' : 'Cerrar sesión y usar otra cuenta'} disabled={action.pending} onPress={() => { void action.run(logout); }} />
+    </Screen>
+  );
 
   if (!isAdmin) return (
     <Screen title="Acceso administrador" subtitle="El espacio para organizar tu restaurante.">
@@ -24,12 +34,14 @@ export default function AdminScreen() {
           <AppText variant="title" color="#FFFFFF">ADMIN</AppText>
           <AppText color="#FFFFFF">Mesas, horarios y reservas en un solo lugar.</AppText>
         </Card>
-        <Notice>Acceso de demostración · PIN: 1234. No es autenticación real.</Notice>
-        <Field label="PIN de acceso" placeholder="Ingresa los 4 dígitos" value={pin}
-          onChangeText={(value) => { setPin(value.replace(/\D/g, '')); setError(''); }}
-          keyboardType="number-pad" secureTextEntry maxLength={4} error={error}
-          onSubmitEditing={enter} returnKeyType="go" />
-        <Button label="Ingresar al panel" onPress={enter} disabled={pin.length !== 4} />
+        <Field label="Correo electrónico" placeholder="tu.correo@ejemplo.com" value={email}
+          onChangeText={setEmail} keyboardType="email-address" autoCapitalize="none" autoCorrect={false}
+          autoComplete="email" editable={!action.pending} maxLength={254} />
+        <Field label="Contraseña" placeholder="Tu contraseña" value={password}
+          onChangeText={setPassword} secureTextEntry autoCapitalize="none" autoComplete="current-password"
+          editable={!action.pending} onSubmitEditing={enter} returnKeyType="go" />
+        {action.error || authError ? <Notice tone="error">{action.error || authError}</Notice> : null}
+        <Button label={action.pending ? 'Ingresando…' : 'Ingresar al panel'} onPress={enter} disabled={action.pending || !email.trim() || !password} />
       </View>
     </Screen>
   );
@@ -42,7 +54,8 @@ export default function AdminScreen() {
   ];
   return (
     <Screen title="Panel administrativo" subtitle="Todo listo para recibir a tus clientes.">
-      <Row><Badge label="Sesión de demostración" tone="success" /><Button label="Cerrar sesión" variant="ghost" onPress={logout} /></Row>
+      <Row><Badge label="Administrador" tone="success" /><Button label={action.pending ? 'Cerrando sesión…' : 'Cerrar sesión'} variant="ghost" disabled={action.pending} onPress={() => { void action.run(logout); }} /></Row>
+      {action.error ? <Notice tone="error">{action.error}</Notice> : null}
       <View style={styles.grid}>
         {sections.map((section) => (
           <Card key={section.title} style={styles.section}>
@@ -53,7 +66,7 @@ export default function AdminScreen() {
           </Card>
         ))}
       </View>
-      <Notice>Los cambios se comparten con el módulo cliente durante esta sesión y se reinician al recargar.</Notice>
+      <Notice>Los cambios guardados estarán disponibles también en el módulo cliente.</Notice>
     </Screen>
   );
 }

@@ -5,6 +5,7 @@ import {
   type StyleProp, type TextInputProps, type TextStyle, View, type ViewStyle,
 } from 'react-native';
 import { colors } from '@/constants/konys';
+import { useRestaurant } from '@/state/restaurant-store';
 
 type Children = { children: ReactNode };
 type TextVariant = 'title' | 'subtitle' | 'body' | 'caption' | 'label';
@@ -19,6 +20,7 @@ export function AppText({ children, variant = 'body', color, style }: Children &
 export function Screen({ title, subtitle, children, backHref }: Children & {
   title: string; subtitle?: string; backHref?: Href;
 }) {
+  const { loading, error, refresh } = useRestaurant();
   return <KeyboardAvoidingView style={styles.flex} enabled={Platform.OS !== 'web'}
     behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
     <ScrollView style={styles.flex} contentContainerStyle={styles.scroll}
@@ -30,9 +32,11 @@ export function Screen({ title, subtitle, children, backHref }: Children & {
           <AppText variant="title">{title}</AppText>
           {subtitle && <AppText color={colors.muted}>{subtitle}</AppText>}
         </View>
+        {loading && <Notice>Actualizando datos…</Notice>}
+        {!!error && <View style={styles.section}><Notice tone="error">{error}</Notice><Button label="Reintentar conexión" variant="secondary" onPress={() => { void refresh(); }} disabled={loading} /></View>}
         {children}
         <AppText variant="caption" color={colors.muted} style={styles.footnote}>
-          Proyecto académico · KONYS PIZZA{ '\n' }Datos de demostración. Se reinician al recargar.
+          KONYS PIZZA · Reservas de mesas{ '\n' }Fechas y horarios de Colombia
         </AppText>
       </View>
     </ScrollView>
