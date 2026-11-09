@@ -8,7 +8,7 @@ export default function AdminShiftsScreen() {
   const { shifts, loading } = useRestaurant();
   const [adding, setAdding] = useState(false);
   return (
-    <Screen title="Jornadas y horarios" subtitle="Define cuándo y por cuánto tiempo recibir reservas." backHref="/admin">
+    <Screen eyebrow="ADMINISTRACIÓN / HORARIOS" title="Jornadas y horarios" subtitle="Define cuándo y por cuánto tiempo recibir reservas." backHref="/admin">
       <Notice>Cada jornada se aplica únicamente al día de la semana indicado, en hora de Colombia. Las reservas existentes conservan su hora y duración.</Notice>
       {!shifts.length && !loading ? <EmptyState title="Todavía no hay jornadas" message="Agrega una jornada y selecciona su día, horas y duración." /> : null}
       {[...shifts].sort((a, b) => (a.day || 7) - (b.day || 7) || a.start.localeCompare(b.start)).map((shift) => <ShiftEditor key={shift.id} shift={shift} />)}

@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { categories } from '@/components/admin/options';
 import { useAdminAction } from '@/components/admin/use-admin-action';
 import { AppText, Button, Card, Chip, EmptyState, Field, Notice, Row, Screen } from '@/components/konys/ui';
+import { space } from '@/constants/konys';
 import { useRestaurant } from '@/state/restaurant-store';
 import type { Category, Dish } from '@/types/restaurant';
 
@@ -30,8 +31,8 @@ function DishForm({ dish }: { dish?: Dish }) {
     void action.run(() => saveDish({ id: dish?.id, name, description, category, price: Number(price), visible }), '', () => router.replace('/admin/carta'));
   };
   return (
-    <Screen title={dish ? 'Editar plato' : 'Nuevo plato'} subtitle="Información que verán tus clientes." backHref="/admin/carta">
-      <Card>
+    <Screen eyebrow="ADMINISTRACIÓN / CARTA" title={dish ? 'Editar plato' : 'Nuevo plato'} subtitle="Información que verán tus clientes." backHref="/admin/carta">
+      <Card style={{ width: '100%', maxWidth: 680, alignSelf: 'center', padding: space.xl, gap: space.xl }}>
         <Field label="Nombre del plato" placeholder="Ej. Pizza especial" value={name} onChangeText={setName} maxLength={80} editable={!action.pending} />
         <Field label="Descripción" placeholder="Ingredientes y detalles del plato" value={description} onChangeText={setDescription} multiline maxLength={300} editable={!action.pending} />
         <AppText variant="label">Categoría</AppText>

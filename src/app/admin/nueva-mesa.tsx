@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { tableStates } from '@/components/admin/options';
 import { useAdminAction } from '@/components/admin/use-admin-action';
 import { AppText, Button, Card, Chip, Field, Notice, Row, Screen } from '@/components/konys/ui';
+import { space } from '@/constants/konys';
 import { useRestaurant } from '@/state/restaurant-store';
 import type { TableStatus } from '@/types/restaurant';
 
@@ -19,8 +20,8 @@ export default function NewTableScreen() {
     void action.run(() => addTable({ name, zone, capacity: Number(capacity), status }), '', () => router.replace('/admin/mesas'));
   };
   return (
-    <Screen title="Nueva mesa" subtitle="Agrega un espacio para compartir." backHref="/admin/mesas">
-      <Card>
+    <Screen eyebrow="ADMINISTRACIÓN / MESAS" title="Nueva mesa" subtitle="Agrega un espacio para compartir." backHref="/admin/mesas">
+      <Card style={{ width: '100%', maxWidth: 680, alignSelf: 'center', padding: space.xl, gap: space.xl }}>
         <Field label="Nombre o número de mesa" placeholder="Ej. Mesa 9" value={name} onChangeText={setName} maxLength={50} editable={!action.pending} />
         <Field label="Zona" placeholder="Ej. Terraza" value={zone} onChangeText={setZone} maxLength={40} editable={!action.pending} />
         <Row>{['Terraza', 'Salón', 'Patio'].map((item) => <Chip key={item} label={item} selected={zone === item} disabled={action.pending} onPress={() => setZone(item)} />)}</Row>
