@@ -1,56 +1,145 @@
-# Welcome to your Expo app 👋
+# KONYS PIZZA
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+## Aplicación móvil para la reserva de mesas
 
-## Get started
+**Universidad:** Corporación Universitaria de Ciencia y Desarrollo – UNICIENCIA
+**Programa:** Ingeniería de Sistemas
+**Asignatura:** Programación Móvil
+**Docente:** Carlos Carrascal
 
-1. Install dependencies
+**Integrantes:**
 
-   ```bash
-   npm install
-   ```
+- Yefry Fernando Amaya Barbosa
+- Andrés David Pérez Pardo
 
-2. Start the app
+**Fecha:** Noviembre de 2026
 
-   ```bash
-   npx expo start
-   ```
+---
 
-In the output, you'll find options to open the app in a
+## 1. Descripción del proyecto
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+KONYS PIZZA es una aplicación móvil desarrollada para facilitar la reserva de mesas en una pizzería y mejorar la gestión administrativa del establecimiento.
 
-You can start developing by editing the files inside the **src/app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+La aplicación permite a los clientes consultar mesas disponibles para reservar, seleccionar una fecha y horario, registrar sus datos y confirmar una reserva.
 
-## Get a fresh project
+También incluye una carta digital y un panel administrativo protegido mediante autenticación.
 
-When you're ready, run:
+## 2. Objetivo general
 
-```bash
-npm run reset-project
-```
+Desarrollar una aplicación móvil utilizando React Native, Expo y Supabase, que permita gestionar las reservas de mesas de KONYS PIZZA y optimizar la administración de mesas, horarios, reservas y productos.
 
-This command will move the starter code to the **example** directory and create a blank **src/app** directory where you can start developing.
+## 3. Funcionalidades
 
-### Other setup steps
+### Módulo del cliente
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+- Consultar mesas activas, zonas y capacidades.
+- Seleccionar mesa, fecha y horario de reserva.
+- Consultar franjas horarias disponibles.
+- Registrar nombre, número de personas y contacto opcional.
+- Validar la capacidad de las mesas.
+- Prevenir reservas duplicadas mediante validaciones del sistema.
+- Visualizar la confirmación de la reserva.
+- Consultar la carta digital por categorías.
 
-## Learn more
+### Módulo administrativo
 
-To learn more about developing your project with Expo, look at the following resources:
+- Iniciar sesión con credenciales autorizadas.
+- Registrar mesas y modificar su estado activo o inactivo.
+- Configurar horarios de atención.
+- Consultar y filtrar reservas.
+- Cancelar o finalizar reservas.
+- Agregar, modificar y ocultar productos de la carta digital.
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+## 4. Tecnologías utilizadas
 
-## Join the community
+| Tecnología    | Uso                          |
+| ------------- | ---------------------------- |
+| React Native  | Desarrollo móvil             |
+| Expo SDK 58   | Entorno de desarrollo        |
+| Expo Router   | Navegación                   |
+| TypeScript    | Desarrollo tipado            |
+| Supabase      | Servicios de backend         |
+| PostgreSQL    | Base de datos                |
+| Supabase Auth | Autenticación administrativa |
+| Git y GitHub  | Control de versiones         |
 
-Join our community of developers creating universal apps.
+## 5. Instalación
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+Clonar el repositorio:
+
+`git clone https://github.com/yef1012/konys-reservas-app.git`
+
+Entrar a la carpeta:
+
+`cd konys-reservas-app`
+
+Instalar las dependencias:
+
+`npm ci`
+
+Crear el archivo `.env.local` utilizando los nombres de variables definidos en `.env.example`.
+
+Configurar:
+
+- `EXPO_PUBLIC_SUPABASE_URL`
+- `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
+
+Iniciar la aplicación:
+
+`npx expo start -c`
+
+Para realizar pruebas, utilizar Expo Go en un dispositivo compatible.
+
+**Nota:** la aplicación requiere un proyecto Supabase configurado con las tablas, funciones SQL y políticas de seguridad correspondientes. Las variables de entorno por sí solas no crean estos recursos.
+
+## 6. Base de datos
+
+La información del sistema se almacena en Supabase PostgreSQL mediante cuatro tablas principales:
+
+- **mesas:** nombre, zona, capacidad y estado.
+- **horarios:** días, jornadas y duración de las reservas.
+- **reservas:** datos del cliente, mesa, fecha, horario y estado.
+- **platos:** productos, categorías, descripción, precio y disponibilidad.
+
+El sistema utiliza funciones RPC para gestionar la creación de reservas y consultar la ocupación de horarios.
+
+## 7. Seguridad
+
+La autenticación administrativa utiliza Supabase Auth.
+
+Los permisos de acceso se controlan mediante políticas de seguridad a nivel de filas (RLS) configuradas en la base de datos.
+
+No deben publicarse contraseñas ni claves privadas. Las variables con prefijo `EXPO_PUBLIC_` son públicas y no deben contener secretos.
+
+## 8. Estructura del proyecto
+
+- `src/app/`: pantallas y rutas.
+- `src/components/`: componentes reutilizables.
+- `src/services/`: servicios y consultas.
+- `src/state/`: estado de la aplicación.
+- `src/hooks/`: hooks.
+- `src/utils/`: funciones auxiliares.
+- `src/types/`: tipos de datos.
+- `supabase/`: scripts SQL incluidos en el repositorio.
+- `tests/`: pruebas automatizadas.
+- `docs/`: documentación académica y evidencias.
+
+## 9. Pruebas
+
+La aplicación ha sido probada manualmente en un iPhone mediante Expo Go.
+
+Se ha verificado el flujo básico de creación de reservas y su visualización posterior en el módulo administrativo.
+
+El proyecto también dispone de pruebas automatizadas. Algunas verificaciones adicionales de seguridad, concurrencia y compatibilidad Android siguen pendientes de documentación.
+
+## 10. Alcance del proyecto
+
+La aplicación contempla reservas de mesas, carta digital y gestión administrativa.
+
+No incluye pagos en línea, pedidos a domicilio, notificaciones push ni publicación en tiendas de aplicaciones.
+
+## 11. Repositorio
+
+**GitHub:** https://github.com/yef1012/konys-reservas-app
+
+**Proyecto académico — UNICIENCIA, noviembre de 2026.**
