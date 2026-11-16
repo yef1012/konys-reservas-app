@@ -1,11 +1,13 @@
 import type { Session } from '@supabase/supabase-js';
-import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 import { AppState, Platform } from 'react-native';
 import { configurationError, requireSupabase, supabase } from '@/lib/supabase';
 import { errorMessage, fetchOccupancy, loadRestaurant } from '@/services/restaurant';
+import { createReservationAction } from '@/services/create-reservation';
+import { createRestaurantSync, initialRestaurantState } from '@/state/restaurant-sync';
 import type { Dish, Reservation, ReservationInput, ReservationResult, ReservationStatus, RestaurantData, Result, Shift, Table, TableStatus } from '@/types/restaurant';
-import { availableTimes, isoDay } from '@/utils/availability';
-import { isValidDate, timeToMinutes, todayISO } from '@/utils/reservations';
+import { isoDay } from '@/utils/availability';
+import { timeToMinutes } from '@/utils/reservations';
 
 interface RestaurantStore extends RestaurantData {
   loading: boolean; error: string; refresh: () => Promise<void>;
@@ -21,69 +23,47 @@ interface RestaurantStore extends RestaurantData {
   createReservation: (input: ReservationInput) => Promise<ReservationResult>;
   updateReservationStatus: (id: string, status: ReservationStatus) => Promise<Result>;
 }
-const empty: RestaurantData = { tables: [], shifts: [], reservations: [], dishes: [] };
 const Context = createContext<RestaurantStore | null>(null);
 
 export function RestaurantProvider({ children }: { children: ReactNode }) {
-  const [data, setData] = useState<RestaurantData>(empty);
-  const [loading, setLoading] = useState(!configurationError);
-  const [error, setError] = useState(configurationError);
-  const [session, setSession] = useState<Session | null>(null);
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [authLoading, setAuthLoading] = useState(!configurationError);
-  const [authError, setAuthError] = useState('');
+  const [snapshot, setSnapshot] = useState(() => initialRestaurantState(configurationError));
   const [confirmation, setConfirmation] = useState<Reservation | null>(null);
-  const latest = useRef(data);
-  const access = useRef<{ session: Session | null; admin: boolean }>({ session: null, admin: false });
-  const epoch = useRef(0);
-  const mounted = useRef(true);
-  const booking = useRef(false);
-
-  const synchronize = useCallback(async (candidate: Session | null) => {
-    const current = ++epoch.current;
-    access.current = { session: candidate, admin: false };
-    setSession(candidate); setIsAdmin(false); setAuthLoading(true); setAuthError(''); setLoading(true);
-    // Nunca mantener datos privados de una sesión anterior mientras se valida la nueva.
-    latest.current = empty; setData(empty);
-    let authorized = false;
-    try {
+  const [synchronization] = useState(() => createRestaurantSync({
+    onChange: setSnapshot,
+    errorMessage,
+    loadRestaurant,
+    async verifySession(candidate) {
       const client = requireSupabase();
-      if (candidate) {
-        try {
-          const user = await client.auth.getUser(candidate.access_token);
-          if (user.error || !user.data.user) throw user.error ?? new Error('La sesión ya no es válida.');
-          const permission = await client.rpc('verificar_acceso_admin');
-          if (permission.error) throw permission.error;
-          authorized = permission.data === true;
-          if (!authorized) throw new Error('Esta cuenta no tiene permisos de administrador.');
-        } catch (cause) {
-          if (current === epoch.current && mounted.current) setAuthError(errorMessage(cause));
-        }
-      }
-      const next = await loadRestaurant(authorized);
-      if (current !== epoch.current || !mounted.current) return;
-      access.current = { session: candidate, admin: authorized };
-      latest.current = next; setData(next); setIsAdmin(authorized); setError('');
-    } catch (cause) {
-      if (current === epoch.current && mounted.current) setError(errorMessage(cause));
-    } finally {
-      if (current === epoch.current && mounted.current) { setAuthLoading(false); setLoading(false); }
-    }
-  }, []);
+      const user = await client.auth.getUser(candidate.access_token);
+      if (user.error || user.data.user?.id !== candidate.user.id) throw user.error ?? new Error('La sesión ya no es válida.');
+      const permission = await client.rpc('verificar_acceso_admin');
+      if (permission.error) throw permission.error;
+      return permission.data === true;
+    },
+  }, snapshot));
+  const { data, loading, error, session, isAdmin, authLoading, authError } = snapshot;
+  const refresh = synchronization.refresh;
+  const [createReservation] = useState(() => createReservationAction({
+    getData: () => synchronization.getSnapshot().data,
+    fetchOccupancy,
+    reserve: (args) => requireSupabase().rpc('crear_reserva', args),
+    confirm: setConfirmation,
+    refresh,
+    onRefreshError: synchronization.reportError,
+    errorMessage,
+  }));
 
   useEffect(() => {
-    mounted.current = true;
+    synchronization.activate();
     if (!supabase) return;
     const client = supabase;
     // No ejecutar consultas async dentro del callback de Auth: se evita bloquear su lock.
     const timers = new Set<ReturnType<typeof setTimeout>>();
     const { data: listener } = client.auth.onAuthStateChange((_event, next) => {
       timers.forEach(clearTimeout); timers.clear();
-      ++epoch.current;
-      access.current = { session: next, admin: false };
-      setIsAdmin(false); setAuthLoading(true); setSession(next);
-      latest.current = empty; setData(empty);
-      const timer = setTimeout(() => { timers.delete(timer); if (mounted.current) void synchronize(next); }, 0);
+      if (synchronization.getSnapshot().session?.user.id !== next?.user.id) setConfirmation(null);
+      synchronization.setSession(next);
+      const timer = setTimeout(() => { timers.delete(timer); void synchronization.refresh(); }, 0);
       timers.add(timer);
     });
     const appState = AppState.addEventListener('change', (state) => {
@@ -94,42 +74,20 @@ export function RestaurantProvider({ children }: { children: ReactNode }) {
     });
     if (Platform.OS !== 'web' && AppState.currentState === 'active') client.auth.startAutoRefresh();
     return () => {
-      mounted.current = false;
+      synchronization.deactivate();
       listener.subscription.unsubscribe(); appState.remove(); timers.forEach(clearTimeout);
       if (Platform.OS !== 'web') client.auth.stopAutoRefresh();
     };
-  }, [synchronize]);
-
-  const refresh = useCallback(async () => {
-    const current = ++epoch.current;
-    const candidate = access.current.session;
-    let authorized = false;
-    setLoading(true);
-    try {
-      if (candidate) {
-        const permission = await requireSupabase().rpc('verificar_acceso_admin');
-        if (permission.error) throw permission.error;
-        authorized = permission.data === true;
-      }
-      if (current !== epoch.current || !mounted.current) return;
-      if (!authorized) { setIsAdmin(false); access.current.admin = false; }
-      const next = await loadRestaurant(authorized);
-      if (current !== epoch.current || !mounted.current) return;
-      latest.current = next; setData(next); setError('');
-      access.current = { session: candidate, admin: authorized }; setIsAdmin(authorized);
-    } catch (cause) {
-      if (current === epoch.current && mounted.current) {
-        setError(errorMessage(cause)); latest.current = empty; setData(empty);
-        access.current.admin = false; setIsAdmin(false);
-      }
-    } finally { if (current === epoch.current && mounted.current) setLoading(false); }
-  }, []);
+  }, [synchronization]);
 
   async function adminMutation(action: () => Promise<void>): Promise<Result> {
     try {
-      if (!access.current.admin) throw new Error('Necesitas una sesión con permisos de administrador.');
+      const before = synchronization.getSnapshot();
+      if (!before.isAdmin) throw new Error('Necesitas una sesión con permisos de administrador.');
       const permission = await requireSupabase().rpc('verificar_acceso_admin');
-      if (permission.error) throw permission.error;
+      const current = synchronization.getSnapshot();
+      if (!current.isAdmin || before.session?.user.id !== current.session?.user.id) throw new Error('La sesión cambió. Vuelve a ingresar antes de guardar.');
+      if (permission.error) { await refresh(); throw permission.error; }
       if (permission.data !== true) { await refresh(); throw new Error('Tu cuenta ya no tiene permisos de administrador.'); }
       await action(); // RLS vuelve a comprobar la autorización al escribir.
       await refresh();
@@ -152,13 +110,13 @@ export function RestaurantProvider({ children }: { children: ReactNode }) {
       } catch (cause) { return { ok: false, error: errorMessage(cause) }; }
     },
     async logout() {
-      ++epoch.current; access.current = { session: null, admin: false };
-      setIsAdmin(false); latest.current = empty; setData(empty); setConfirmation(null);
+      synchronization.setSession(null); setConfirmation(null);
       try {
         const result = await requireSupabase().auth.signOut({ scope: 'local' });
         if (result.error) throw result.error;
         return { ok: true };
       } catch (cause) { return { ok: false, error: errorMessage(cause) }; }
+      finally { await refresh(); }
     },
     async addTable(input) {
       if (!input.name.trim() || !input.zone.trim() || !Number.isInteger(input.capacity) || input.capacity < 1 || input.capacity > 30) return { ok: false, error: 'Completa nombre, zona y una capacidad entre 1 y 30.' };
@@ -188,7 +146,7 @@ export function RestaurantProvider({ children }: { children: ReactNode }) {
     },
     async toggleDish(id) {
       return adminMutation(async () => {
-        const dish = latest.current.dishes.find((item) => item.id === id);
+        const dish = synchronization.getSnapshot().data.dishes.find((item) => item.id === id);
         if (!dish) throw new Error('El plato ya no está disponible. Actualiza la carta.');
         await expectOne(requireSupabase().from('platos').update({ disponible: !dish.visible }).eq('id', id).select('id'));
       });
@@ -200,31 +158,7 @@ export function RestaurantProvider({ children }: { children: ReactNode }) {
         setConfirmation((previous) => previous?.id === id ? { ...previous, status } : previous);
       });
     },
-    async createReservation(input) {
-      if (booking.current) return { ok: false, error: 'Tu reserva se está enviando. Espera un momento.' };
-      booking.current = true;
-      let rpcStarted = false;
-      try {
-        const table = latest.current.tables.find((item) => item.id === input.tableId);
-        const shift = latest.current.shifts.find((item) => item.id === input.shiftId);
-        if (!table || table.status !== 'disponible' || !shift || !isValidDate(input.date) || input.date < todayISO()) throw new Error('Selecciona una mesa, jornada y fecha válidas.');
-        if (input.name.trim().length < 2 || input.name.trim().length > 80 || !Number.isInteger(input.people) || input.people < 1 || input.people > table.capacity || input.contact.length > 100) throw new Error('Revisa el nombre, el contacto y la capacidad de la mesa.');
-        const intervals = await fetchOccupancy(input.tableId, input.date);
-        if (!availableTimes(shift, input.date, intervals).includes(input.time)) throw new Error('Este horario ya no está disponible. Elige otro horario.');
-        rpcStarted = true;
-        const result = await requireSupabase().rpc('crear_reserva', {
-          p_mesa_id: input.tableId, p_cliente_nombre: input.name.trim(), p_num_personas: input.people,
-          p_fecha: input.date, p_hora_inicio: input.time, p_cliente_contacto: input.contact.trim() || null,
-        });
-        if (result.error) throw result.error;
-        if (typeof result.data !== 'string' || !/^[0-9a-f-]{36}$/i.test(result.data)) throw new Error('El servidor no devolvió una referencia de reserva válida. Consulta al restaurante antes de repetir.');
-        setConfirmation({ ...input, id: result.data, name: input.name.trim(), contact: input.contact.trim(), duration: shift.duration, status: 'confirmada' });
-        return { ok: true, id: result.data };
-      } catch (cause) {
-        const message = errorMessage(cause);
-        return { ok: false, error: rpcStarted && /conectar|conexión/i.test(message) ? 'No pudimos confirmar la respuesta del servidor. La reserva podría haberse registrado; consulta al restaurante antes de volver a enviarla.' : message };
-      } finally { booking.current = false; }
-    },
+    createReservation,
   };
   return <Context.Provider value={value}>{children}</Context.Provider>;
 }

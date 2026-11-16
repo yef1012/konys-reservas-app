@@ -31,7 +31,7 @@ export default function ReservationFormScreen() {
   const validSelection = !!table && !!shift && validDate && shift.enabled && shift.day === weekday(date) && /^([01]\d|2[0-3]):[0-5]\d$/.test(time);
   const availability = useAvailability(validSelection ? tableId : '', validSelection ? date : '', validSelection ? shiftId : '');
 
-  if (loading || catalogError) return <Screen title="Completa tu reserva" backHref="/">{null}</Screen>;
+  if ((loading && (!table || !shift)) || catalogError) return <Screen title="Completa tu reserva" backHref="/">{null}</Screen>;
   if (!table || !shift || !validSelection) return <BookingRecovery />;
   const selectionHref = { pathname: '/reservar' as const, params: { tableId, date, shiftId, time } };
   const count = Number(people);

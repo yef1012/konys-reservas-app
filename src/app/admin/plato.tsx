@@ -13,7 +13,7 @@ export default function DishScreen() {
   const { dishes, loading, error } = useRestaurant();
   const id = Array.isArray(params.id) ? params.id[0] : params.id;
   const dish = dishes.find((item) => item.id === id);
-  if (id && loading) return <Screen title="Editar plato" backHref="/admin/carta"><Notice>Cargando información del plato…</Notice></Screen>;
+  if (id && !dish && loading) return <Screen title="Editar plato" backHref="/admin/carta"><Notice>Cargando información del plato…</Notice></Screen>;
   if (id && !dish) return <Screen title="Plato no encontrado" backHref="/admin/carta"><EmptyState title="Este plato no está disponible" message={error || 'Vuelve a la carta para seleccionar un plato disponible.'} /><Button label="Volver a la carta" onPress={() => router.replace('/admin/carta')} /></Screen>;
   return <DishForm key={id ?? 'nuevo'} dish={dish} />;
 }

@@ -28,7 +28,7 @@ export default function ReserveScreen() {
   const availability = useAvailability(table && validDate ? table.id : '', validDate ? date : '', shiftId);
   const slots = availability.slots;
 
-  if (loading || catalogError) return <Screen title="Reservar mesa" backHref="/">{null}</Screen>;
+  if ((loading && !tables.length) || catalogError) return <Screen title="Reservar mesa" backHref="/">{null}</Screen>;
   if (tableId && !table) return <BookingRecovery message="Esta mesa ya no está disponible. Vuelve al inicio y selecciona otra." />;
 
   function changeDate(value: string) { setDate(value); setSelectedShiftId(''); setTime(''); setError(''); }
