@@ -1,10 +1,26 @@
 # Pruebas de KONYS PIZZA
 
-Fecha: **15 de noviembre de 2026**, para revisión antes de la entrega del lunes 16.
+Registro original: **15 de noviembre de 2026**. Actualización de entrega: **16 de noviembre de 2026**.
+
+## Actualización de entrega — 16 de noviembre de 2026
+
+Al preparar la documentación final se revisaron nuevamente el código, el README y este registro. El historial local ya contiene cinco commits; el más reciente es `170929c` (`fix: mejorar sincronizacion y agregar pruebas automatizadas`). Por tanto, las referencias posteriores al quinto commit pendiente corresponden al registro histórico del día 15. No se comprobó el estado remoto de GitHub ni se hicieron commit o push en esta revisión documental.
+
+Se repitieron las comprobaciones sobre el código actual, sin instalar dependencias:
+
+| Comando ejecutado el 16 de noviembre | Resultado real |
+| --- | --- |
+| `npm.cmd run typecheck` | Código de salida 0; sin errores. |
+| `npm.cmd run lint` | Código de salida 0; ESLint completo sin errores ni advertencias. |
+| `npm.cmd test` | Código de salida 0; **60 aprobadas, 0 fallidas, 0 canceladas, 0 omitidas y 0 pendientes**. |
+
+Continúa el aviso de Node `MODULE_TYPELESS_PACKAGE_JSON` descrito abajo. Las comprobaciones manuales de móvil/web, permisos remotos, concurrencia contra Supabase e instalación del APK siguen pendientes de evidencia posterior a los cambios. La configuración `preview` de `eas.json` solicita un APK, pero no se localizó un artefacto APK/AAB ni un enlace de descarga en los documentos revisados. Los cambios locales de `app.json` y `eas.json` ya existían y no se alteraron al documentar.
+
+La revisión de credenciales descrita más abajo conserva su alcance histórico: cuatro commits inspeccionados el día 15. No se repitió ese escaneo de historial ni se abrió `.env.local` en esta revisión. La documentación final se encuentra en [REQUISITOS.md](REQUISITOS.md), [ARQUITECTURA.md](ARQUITECTURA.md), [DISENO.md](DISENO.md) y [GUION_VIDEO.md](GUION_VIDEO.md).
 
 ## Alcance y entorno
 
-Verificación local en Windows/PowerShell con Node **v24.19.0**, npm **11.17.0** y las dependencias existentes (Expo 58). No se instalaron ni actualizaron paquetes. Base revisada: commit `6766f9f`, cuarto commit local. Los cambios descritos aquí todavía no tienen commit ni push.
+Verificación original del día 15 en Windows/PowerShell con Node **v24.19.0**, npm **11.17.0** y las dependencias existentes (Expo 58). No se instalaron ni actualizaron paquetes. Base revisada entonces: commit `6766f9f`, cuarto commit local. En ese momento los cambios descritos aquí todavía no tenían commit ni push; su estado posterior se indica en la actualización del día 16.
 
 El funcionamiento previo en iPhone mediante Expo Go y la conexión con Supabase fueron informados por el equipo. **Esta intervención no volvió a probar la aplicación en un teléfono ni en un navegador.** No se realizaron consultas o escrituras al proyecto Supabase, cambios SQL, pruebas de RLS remotas ni capturas de pantalla.
 
@@ -79,4 +95,4 @@ Todos los puntos siguientes permanecen **PENDIENTES tras estos cambios**. Las pr
 
 Para iniciar estas revisiones con las dependencias ya presentes: `npm run start` para Expo Go y `npm run web` para web. Usar únicamente datos de prueba autorizados para las comprobaciones que crean reservas. Registrar después el dispositivo, versión, fecha, resultado observado y evidencias reales; este archivo no contiene capturas inventadas.
 
-Antes de entregar, el equipo debe revisar el diff, completar las pruebas manuales de prioridad alta y decidir cuándo publicar el quinto commit. Esta intervención no realizó commit ni push.
+Al cerrar la revisión del día 15, quedaban pendientes la revisión del diff, las pruebas manuales de prioridad alta y la publicación del quinto commit. Para la entrega del día 16, consultar la actualización al inicio de este documento y completar las evidencias manuales pendientes. Ninguna de estas intervenciones realizó commit ni push.

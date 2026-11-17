@@ -142,4 +142,29 @@ No incluye pagos en línea, pedidos a domicilio, notificaciones push ni publicac
 
 **GitHub:** https://github.com/yef1012/konys-reservas-app
 
+## 12. Video explicativo del proyecto
+
+Presentación académica de KONYS PIZZA, desarrollada por Yefry Fernando Amaya Barbosa y Andrés David Pérez Pardo, estudiantes de Ingeniería de Sistemas de UNICIENCIA.
+
+En el video se presenta la problemática, el funcionamiento del cliente, el panel administrativo, la integración con Supabase, GitHub y las pruebas realizadas.
+
+**Duración:** 5 minutos y 9 segundos.
+
+🎬 [Ver video de presentación de KONYS PIZZA](https://drive.google.com/file/d/1U9m4ifHSdQymfKidvmrh0Ds4y6_dT9r-/view?usp=sharing)
+
+## 13. Aplicación Android (APK)
+
+La aplicación fue compilada mediante Expo EAS Build con el perfil preview y probada en un dispositivo Android.
+
+📱 [Descargar o instalar KONYS PIZZA para Android](https://expo.dev/accounts/yefryamaya/projects/konys-reservas-app/builds/035aa764-4856-4c12-85b5-b12cea279efa)
+
+## 14. Documentación técnica
+
+Los documentos académicos se encuentran en la carpeta `docs/`:
+
+- `REQUISITOS.md`: funcionalidades y evidencias.
+- `ARQUITECTURA.md`: arquitectura y base de datos.
+- `DISENO.md`: pantallas y referencias de diseño.
+- `PRUEBAS.md`: pruebas y resultados.
+
 **Proyecto académico — UNICIENCIA, noviembre de 2026.**
