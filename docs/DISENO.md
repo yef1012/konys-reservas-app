@@ -10,7 +10,7 @@
 
 Este documento describe el diseño implementado en el código del proyecto. No es una certificación de correspondencia con los mockups ni de compatibilidad visual en todos los dispositivos. El [README](../README.md) informa pruebas previas en iPhone mediante Expo Go; la revisión documental del 16 de noviembre no incluyó una nueva inspección visual en un teléfono o navegador. Las comprobaciones automatizadas y sus límites se describen en [PRUEBAS.md](PRUEBAS.md).
 
-Referencia de diseño proporcionada por el equipo: [archivo de Figma de KONYS PIZZA](https://www.figma.com/design/806IGdyG1UszxCUV8fIIyZ). Su contenido y permisos de acceso no se comprobaron durante esta documentación. Los enlaces directos a cada frame y las capturas reales quedan pendientes de incorporar; no se generaron imágenes para presentarlas como evidencias.
+Referencia de diseño proporcionada por el equipo: [archivo de Figma de KONYS PIZZA](https://www.figma.com/design/806IGdyG1UszxCUV8fIIyZ). Su contenido y permisos de acceso no se comprobaron durante esta documentación. También se incorporó el [PDF original con nueve mockups](mockups/KONYS_PIZZA_9_Mockups.pdf), aportado por el equipo, junto con sus nueve imágenes extraídas sin modificar el diseño. Los enlaces directos a los frames de Figma y las capturas reales de la aplicación siguen pendientes; los bocetos del PDF no sustituyen esas capturas.
 
 ## Identidad visual implementada
 
@@ -74,25 +74,105 @@ Las vistas de acceso y panel comparten archivo y ruta. Las variantes nuevo/edita
 - [icon.tsx](../src/components/konys/icon.tsx) y [product-art.tsx](../src/components/konys/product-art.tsx) implementan recursos locales. `ProductArt` presenta ilustraciones SVG, con etiqueta «ILUSTRACIÓN» en las tarjetas; no son fotografías reales de los platos.
 - [product-media.ts](../src/constants/product-media.ts) contiene un mapa vacío para futuras fotografías autorizadas. La referencia a Rappi corresponde al aviso de precios de la carta; no acredita precios actuales ni uso de fotografías de esa plataforma.
 
-## Espacios para mockups y evidencias reales
+## Nueve mockups originales del PDF
 
-El equipo debe completar la siguiente tabla con un enlace al frame concreto de Figma y una captura tomada de la aplicación. Los textos **PENDIENTE** son espacios de documentación, no enlaces a archivos existentes. Registrar junto a cada evidencia fecha, dispositivo/plataforma, tamaño de pantalla y versión o commit. Usar datos de prueba y ocultar información personal o credenciales.
+Se verificaron **nueve páginas y nueve diseños**, con una imagen por página, en [KONYS_PIZZA_9_Mockups.pdf](mockups/KONYS_PIZZA_9_Mockups.pdf). El documento los identifica como **mockups de baja fidelidad**, no capturas de la aplicación final.
 
-| Pantalla o variante | Frame de Figma | Captura real de la aplicación |
-| --- | --- | --- |
-| Inicio y tarjetas de mesas | PENDIENTE | PENDIENTE |
-| Selección de fecha, jornada y horario | PENDIENTE | PENDIENTE |
-| Formulario del cliente y validación de capacidad | PENDIENTE | PENDIENTE |
-| Confirmación de reserva | PENDIENTE | PENDIENTE |
-| Carta digital y aviso de precios | PENDIENTE | PENDIENTE |
-| Acceso administrativo y error de acceso | PENDIENTE | PENDIENTE |
-| Panel administrativo | PENDIENTE | PENDIENTE |
-| Gestión de mesas | PENDIENTE | PENDIENTE |
-| Nueva mesa | PENDIENTE | PENDIENTE |
-| Jornadas y horarios | PENDIENTE | PENDIENTE |
-| Reservas y filtros | PENDIENTE | PENDIENTE |
-| Carta administrativa | PENDIENTE | PENDIENTE |
-| Nuevo plato | PENDIENTE | PENDIENTE |
-| Editar plato | PENDIENTE | PENDIENTE |
+Los PNG conservan los píxeles RGB y la resolución nativa de **440 × 850 píxeles** de las imágenes incrustadas. Se extrajeron directamente, sin reescalar, redibujar, recolorear ni recortar los bocetos. Se conserva una copia idéntica del PDF como evidencia de procedencia, con sus encabezados y pies de página. Se abrieron visualmente las nueve imágenes y se comprobó que son distintas y que sus píxeles coinciden con los del PDF.
 
-Antes de considerar completa la evidencia visual, comparar cada vista con su mockup y registrar diferencias aceptadas por el equipo. Revisar en iPhone y web navegación, textos largos, teclado, estados vacíos, errores y renovación de sesión. Consultar [PRUEBAS.md](PRUEBAS.md) para las comprobaciones pendientes y [GUION_VIDEO.md](GUION_VIDEO.md) para presentar únicamente resultados observados durante la grabación.
+### 1. Inicio
+
+**Página 1 · Archivo:** `mockups/01-inicio.png`.
+
+Presentación de KONYS PIZZA, tarjetas de mesas con zona y capacidad, botones para consultar horarios y navegación inferior Inicio, Carta y Admin.
+
+![Mockup original de Inicio: presentación y tarjetas de mesas](mockups/01-inicio.png)
+
+### 2. Reserva
+
+**Página 2 · Archivo:** `mockups/02-reserva.png`.
+
+Selección de fecha y hora para una mesa, campos de nombre y contacto opcional, cantidad de personas y botón para confirmar. El boceto reúne selección y datos del cliente en una sola pantalla.
+
+![Mockup original de Reserva: fecha, horarios y datos del cliente](mockups/02-reserva.png)
+
+### 3. Confirmación de reserva
+
+**Página 3 · Archivo:** `mockups/03-confirmacion-reserva.png`.
+
+Mensaje de reserva confirmada y resumen del cliente, mesa, fecha, hora, personas y código de referencia, con regreso al inicio. Los valores mostrados pertenecen al boceto aportado, no a una consulta de Supabase.
+
+![Mockup original de Confirmación: resumen y referencia de reserva](mockups/03-confirmacion-reserva.png)
+
+### 4. Carta digital
+
+**Página 4 · Archivo:** `mockups/04-carta-digital.png`.
+
+Categorías Pizzas, Entradas y Postres, tarjetas con espacios para imágenes, descripción y precio, y navegación inferior. Los productos y precios se conservaron tal como aparecen en el PDF; no representan una validación de la carta actual.
+
+![Mockup original de Carta: categorías y tarjetas de productos](mockups/04-carta-digital.png)
+
+### 5. Acceso del administrador
+
+**Página 5 · Archivo:** `mockups/05-acceso-administrador.png`.
+
+Vista de acceso para personal autorizado, con espacio para icono de seguridad, campos vacíos de correo y contraseña y botón Ingresar. No contiene credenciales rellenadas.
+
+![Mockup original de Acceso Admin: correo, contraseña e ingreso](mockups/05-acceso-administrador.png)
+
+### 6. Panel administrativo
+
+**Página 6 · Archivo:** `mockups/06-panel-administrativo.png`.
+
+Bienvenida al administrador y accesos a Gestión de mesas, Horarios, Reservas y Carta digital.
+
+![Mockup original del panel administrativo con sus cuatro secciones](mockups/06-panel-administrativo.png)
+
+### 7. Gestión de mesas
+
+**Página 7 · Archivo:** `mockups/07-gestion-mesas.png`.
+
+Listado de mesas con zona y capacidad, acciones de edición representadas en el boceto y formulario de nueva mesa con nombre y capacidad, seguido de Guardar.
+
+![Mockup original de Gestión de mesas: listado y formulario de alta](mockups/07-gestion-mesas.png)
+
+### 8. Gestión de horarios
+
+**Página 8 · Archivo:** `mockups/08-gestion-horarios.png`.
+
+Selector de día, bloques de jornadas de almuerzo y noche, campos de inicio y fin para editar una jornada y botón Guardar horario.
+
+![Mockup original de Horarios: días, jornadas y horas de atención](mockups/08-gestion-horarios.png)
+
+### 9. Reservas administrativas
+
+**Página 9 · Archivo:** `mockups/09-reservas-administrativas.png`.
+
+Listado de reservas con filtros Hoy, Mañana y Todas. Las tarjetas muestran mesa, hora, nombre y personas, junto con la acción Completar / Cancelar. Los datos son los contenidos del boceto, no registros consultados del servidor.
+
+![Mockup original de Reservas: filtros y acciones administrativas](mockups/09-reservas-administrativas.png)
+
+## Correspondencia y evidencias pendientes
+
+El PDF y la aplicación actual tienen distinto nivel de detalle: el boceto Reserva reúne pasos que el código separa en `/reservar` y `/reserva-formulario`; Gestión de mesas reúne listado y alta, que también tienen rutas separadas. La carta del boceto muestra tres categorías y la aplicación incorpora además Bebidas. Las acciones de edición dibujadas no acreditan por sí solas funciones implementadas: para ello se conserva el inventario de código anterior. El PDF no contiene bocetos independientes para administrar la carta, crear un plato o editarlo; no se añadieron pantallas para suplirlos.
+
+La tabla siguiente enlaza los bocetos existentes. Los frames de Figma y las capturas reales siguen **PENDIENTES**. Registrar junto a cada captura fecha, dispositivo/plataforma, tamaño y versión o commit, sin exponer datos personales ni credenciales.
+
+| Pantalla o variante | Mockup del PDF | Frame de Figma | Captura real de la aplicación |
+| --- | --- | --- | --- |
+| Inicio y tarjetas de mesas | [Inicio](mockups/01-inicio.png) | PENDIENTE | PENDIENTE |
+| Selección de fecha, jornada y horario | [Reserva, vista conjunta](mockups/02-reserva.png) | PENDIENTE | PENDIENTE |
+| Formulario del cliente y validación de capacidad | [Reserva, vista conjunta](mockups/02-reserva.png) | PENDIENTE | PENDIENTE |
+| Confirmación de reserva | [Confirmación](mockups/03-confirmacion-reserva.png) | PENDIENTE | PENDIENTE |
+| Carta digital y aviso de precios | [Carta; el aviso actual no figura en este boceto](mockups/04-carta-digital.png) | PENDIENTE | PENDIENTE |
+| Acceso administrativo y error de acceso | [Acceso; no incluye variante de error](mockups/05-acceso-administrador.png) | PENDIENTE | PENDIENTE |
+| Panel administrativo | [Panel](mockups/06-panel-administrativo.png) | PENDIENTE | PENDIENTE |
+| Gestión de mesas | [Mesas, vista conjunta](mockups/07-gestion-mesas.png) | PENDIENTE | PENDIENTE |
+| Nueva mesa | [Mesas, vista conjunta](mockups/07-gestion-mesas.png) | PENDIENTE | PENDIENTE |
+| Jornadas y horarios | [Horarios](mockups/08-gestion-horarios.png) | PENDIENTE | PENDIENTE |
+| Reservas y filtros | [Reservas administrativas](mockups/09-reservas-administrativas.png) | PENDIENTE | PENDIENTE |
+| Carta administrativa | Sin boceto individual en el PDF | PENDIENTE | PENDIENTE |
+| Nuevo plato | Sin boceto individual en el PDF | PENDIENTE | PENDIENTE |
+| Editar plato | Sin boceto individual en el PDF | PENDIENTE | PENDIENTE |
+
+Antes de considerar completa la evidencia visual, comparar cada vista con su mockup y registrar diferencias aceptadas por el equipo. Revisar en iPhone y web navegación, textos largos, teclado, estados vacíos, errores y renovación de sesión. Consultar [PRUEBAS.md](PRUEBAS.md) para las comprobaciones pendientes. Al grabar la presentación, mostrar únicamente resultados observados.
